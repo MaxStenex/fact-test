@@ -1,26 +1,65 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import { getData } from "./api";
+import { Select } from "./components/Select";
+import "./styles/App.scss";
+import { flatArray } from "./utils/flatArray";
+import { splitOnPrimitiveArrs } from "./utils/splitOnPrimitiveArrs";
 
-function App() {
+const App = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const [initialData, setInitialData] = useState<Array<any>>([]);
+
+  const [selectedValues, setSelectedValues] = useState<Array<string>>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const { data } = await getData();
+
+        const flatedData = flatArray(data.testArr);
+        const primitives = splitOnPrimitiveArrs(flatedData);
+
+        setInitialData(primitives);
+        setErrorMessage("");
+      } catch (error) {
+        setErrorMessage(error.response?.data || "Error");
+      }
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <section className="app">
+      <div className="container">
+        <div className="app__wrapper">
+          <h2 className="app__title">Тестовое задание</h2>
+          <div className="app__content">
+            {initialData.length > 0 && (
+              <>
+                <div className="app__selects">
+                  {initialData.map((arr, i) => (
+                    <Select key={i} options={arr} />
+                  ))}
+                </div>
+                <ul className="app__selected-items">
+                  {selectedValues.map((item, index) => (
+                    <li key={item + index}>{item}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+            {isLoading && <div className="app__loading">Загрузка...</div>}
+            {errorMessage && <div className="app__error-message">{errorMessage}</div>}
+          </div>
+        </div>
+      </div>
+    </section>
   );
-}
+};
 
 export default App;
