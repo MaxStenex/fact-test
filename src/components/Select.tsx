@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 type Props = {
   options: Array<any>;
+  addItemsInSelectedValues: (
+    prevSelectItems: Array<string>,
+    newSelectItems: Array<string>
+  ) => void;
 };
 
-export const Select: React.FC<Props> = ({ options }) => {
-  const [values, setValues] = useState<Array<any>>([]);
+export const Select: React.FC<Props> = ({ options, addItemsInSelectedValues }) => {
+  const [values, setValues] = useState<Array<string>>([]);
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedOptions = e.target.selectedOptions;
     const selectedValues = [];
@@ -14,8 +18,14 @@ export const Select: React.FC<Props> = ({ options }) => {
       selectedValues.push(currValue);
     }
 
+    addItemsInSelectedValues(values, selectedValues);
+
     setValues(selectedValues);
   };
+
+  useEffect(() => {
+    setValues([]);
+  }, [options]);
 
   return (
     <select
@@ -24,9 +34,13 @@ export const Select: React.FC<Props> = ({ options }) => {
       value={values}
       onChange={handleSelectChange}
     >
-      {options.map((o, i) => (
-        <option className="select__option" value={JSON.stringify(o)} key={i}>
-          {JSON.stringify(o)}
+      {options.map((item, index) => (
+        <option
+          className="select__option"
+          value={JSON.stringify(item)}
+          key={item + index}
+        >
+          {JSON.stringify(item)}
         </option>
       ))}
     </select>
