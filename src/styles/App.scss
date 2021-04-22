@@ -48,6 +48,8 @@ body {
     flex: 1;
     text-align: center;
     border-radius: 10px;
+    height: 200px;
+    overflow-y: auto;
     & li {
       border-bottom: 1px solid #ccc;
       padding: 5px 10px;
